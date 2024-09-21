@@ -1,0 +1,44 @@
+---
+- name   : playbook install nginx Debian 12 port 8080
+  hosts  : testdeb1
+  become : yes
+ 
+  tasks  :
+
+  - name: copy sources.list
+    copy:
+      src   : /ansible/push/all/etc/apt/sources.list
+      dest  : /etc/apt/sources.list
+      owner : root
+      group : root
+      mode  : '0644'
+      backup: yes
+
+  - name: Update repositories cache and install Nginx
+    ansible.builtin.apt:
+      name: nginx
+      update_cache: yes
+
+  - name: Change Nginx to listen on port 8080 ipv4
+    replace:
+      path: /etc/nginx/sites-available/default
+      regexp: 'listen[ \t]+\d+'
+      replace: 'listen 8080'
+      backup: yes
+    notify: Restart Nginx
+
+  - name: Change Nginx to listen on port 8080 ipv6
+    replace:
+      path: /etc/nginx/sites-available/default
+      regexp: 'listen[ \t]+\[:\:\]\:\d+'
+      replace: 'listen [::]:8080'
+      backup: yes
+    notify: Restart Nginx
+
+  handlers:
+  - name: Restart Nginx
+    systemd:
+      unit: nginx
+      state: restarted
+      enabled: yes
+...
