@@ -19,6 +19,12 @@
       name: nginx
       update_cache: yes
 
+  - name: Ensure Nginx is started and enabled
+    service:
+      name: nginx
+      state: started
+      enabled: yes
+
   - name: Change Nginx to listen on port 8080 ipv4
     replace:
       path: /etc/nginx/sites-available/default
